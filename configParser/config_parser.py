@@ -1,6 +1,7 @@
 from cli.create_files import GetPrintFileValue
 from parsedExe.classes import Scheduler, CreateOrWriteFileClass
 from parsedExe.exe_cli import CliExecution
+from logger.log import Logging
 
 
 class ParserValueConvergence:
@@ -11,9 +12,11 @@ class ParserValueConvergence:
         self.taskTypes = {
             "createFile": CreateOrWriteFileClass,
             "shell": CliExecution,
-            "schedule": Scheduler
+            "schedule": Scheduler,
+            "log": Logging
         }
 
+   
     def TaskGiver(self, taskType):
 
         tasks = self.jsonData["tasks"]
@@ -24,27 +27,64 @@ class ParserValueConvergence:
             if task["task_type"] == taskType
         ]
 
-   
+    
     def RunningCreateFile(self, task):
 
-       
-        run_class = self.taskTypes["createFile"]
+        logger = Logging(task["task_name"], task["task_type"])
+        logger.AddingLogs("Task started")
 
-        obj = run_class(task["task_name"],task["task_type"],
-            task["file"]["path"],
-            task["file"]["content"]
-        )
+        try:
+            run_class = self.taskTypes["createFile"]
 
-        obj.CreateFile()
+            obj = run_class(
+                task["task_name"],
+                task["task_type"],
+                task["file"]["path"],
+                task["file"]["content"]
+            )
+
+            obj.CreateFile()
+
+            logger.AddingLogs("Task completed successfully")
+
+        except Exception as e:
+            logger.AddingLogs(f"Error: {str(e)}")
 
     
     def RunningShell(self, task):
 
-        # FIX: wrong "task_Type" fixed
-        run_class = self.taskTypes["shell"]
+        logger = Logging(task["task_name"], task["task_type"])
+        logger.AddingLogs("Task started")
 
-        obj = run_class(task["task_name"],task["task_type"],task["command"])
-        obj.Process()
+        try:
+            run_class = self.taskTypes["shell"]
+
+            obj = run_class(
+                task["task_name"],
+                task["task_type"],
+                task["command"]
+            )
+
+            obj.Process()
+
+            logger.AddingLogs("Task completed successfully")
+
+        except Exception as e:
+            logger.AddingLogs(f"Error: {str(e)}")
+
+    
+    def CreateFile(self):
+
+        tasks = self.TaskGiver("createFile")
+
+        for task in tasks:
+
+            scheduler = self.taskTypes["schedule"]
+
+            scheduler(
+                task["schedule"]["seconds"],
+                lambda t=task: self.RunningCreateFile(t)
+            ).start()
 
     
     def RunShell(self):
@@ -61,9 +101,17 @@ class ParserValueConvergence:
             ).start()
 
     
-    def CreateFile(self):
+    def RunningLog(self, task):
 
-        tasks = self.TaskGiver("createFile")
+        logger = Logging(task["task_name"], task["task_type"])
+
+        message = task["log"]["messages"]["start"]
+
+        logger.AddingLogs(message)
+
+    def RunLog(self):
+
+        tasks = self.TaskGiver("log")
 
         for task in tasks:
 
@@ -71,7 +119,7 @@ class ParserValueConvergence:
 
             scheduler(
                 task["schedule"]["seconds"],
-                lambda t=task: self.RunningCreateFile(t)
+                lambda t=task: self.RunningLog(t)
             ).start()
 
 
@@ -82,10 +130,12 @@ def main():
 
     p.RunShell()
     p.CreateFile()
+    p.RunLog()
+
+    import time
+    while True:
+        time.sleep(1)
 
 
 if __name__ == "__main__":
     main()
-    
-    
-    # py -m configParser.config_parser

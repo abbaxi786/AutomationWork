@@ -21,7 +21,6 @@ def GetPrintFileValue(filePath):
 
 def CreateOrWriteFile(filePath, content):
     try:
-        # Create parent folders if they don't exist
         folder = os.path.dirname(filePath)
 
         if folder:
