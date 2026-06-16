@@ -2,9 +2,9 @@ import subprocess
 
 class CliExecution:
     def __init__(self ,task_name, task_type, command):
-        self.command = command  
         self.task_name = task_name
         self.task_type = task_type      
+        self.command = command  
     
     def Process(self):
         print(self.task_name)

@@ -1,4 +1,5 @@
 import json
+import os
 
 def GetPrintFileValue(filePath):
     try:
@@ -20,12 +21,22 @@ def GetPrintFileValue(filePath):
 
 def CreateOrWriteFile(filePath, content):
     try:
+        # Create parent folders if they don't exist
+        folder = os.path.dirname(filePath)
+
+        if folder:
+            os.makedirs(folder, exist_ok=True)
+
         with open(filePath, "x", encoding="utf-8") as file:
             file.write(content)
+
         print("File created and written successfully")
+
     except FileExistsError:
-        with open(filePath, "w", encoding="utf-8") as file:
-            file.write(content)
-        print("File already existed, content overwritten")
+        with open(filePath, "a", encoding="utf-8",) as f:
+            f.write(content+"\n")
+            print("File already existed, content overwritten")
+
     except Exception as e:
+        print("This is finally exception")
         print(type(e), str(e))
