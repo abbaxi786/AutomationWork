@@ -49,11 +49,12 @@ def CommandExe():
                     execution.StopAll()
                     execution = None
 
-        # ================= STOP =================
         elif flow == "stop":
 
             if execution:
                 execution.StopAll()
+                execution = None
+                CommandExe()
                 print("System stopped")
             else:
                 print("No running execution")
