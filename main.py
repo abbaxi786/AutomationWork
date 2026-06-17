@@ -5,7 +5,7 @@ import os
 messages = GetPrintFileValue('library/prints.json')
 commands = messages["commands"]
 
-execution = None   # ✅ always define globally
+execution = None  
 
 
 def CommandExe():
@@ -14,7 +14,6 @@ def CommandExe():
 
     while (flow := input("Enter command: ").lower()) != "exit":
 
-        # ================= START =================
         if flow == "start":
 
             try:
@@ -59,7 +58,6 @@ def CommandExe():
             else:
                 print("No running execution")
 
-        # ================= RESTART =================
         elif flow == "restart":
 
             if execution:
@@ -68,7 +66,6 @@ def CommandExe():
 
             print("System restarting...")
 
-        # ================= EXIT =================
         elif flow == "exit":
 
             if execution:
