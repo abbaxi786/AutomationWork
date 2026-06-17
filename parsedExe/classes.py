@@ -1,5 +1,5 @@
-from cli.create_files import CreateOrWriteFile
-from schedular.wait import set_interval
+from fileOps.create_files import CreateOrWriteFile
+from schedular.wait import set_interval,SetTimeOut
 import threading
 
 class CreateOrWriteFileClass:
@@ -52,6 +52,11 @@ class Scheduler:
 
         if self.thread:
             self.thread.join()
+    
+    def set_timeout(self):
+        SetTimeOut(self.function,self.interval)
+            
+    
 
         
     

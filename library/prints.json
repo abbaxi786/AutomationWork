@@ -2,8 +2,6 @@
     "commands":{
         "start": "🚀 The engine is started",
         "restart": "Restarting engine 🔃",
-        "stop": "Engine Stopped 🛑",
-        "status": "Engine is runnign fine ⚙️",
         "exit": "Engine is exit ➡️"
     }
 }

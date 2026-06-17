@@ -1,19 +1,23 @@
-from cli.create_files import GetPrintFileValue
+from fileOps.create_files import GetPrintFileValue
 from parsedExe.classes import Scheduler, CreateOrWriteFileClass
 from parsedExe.exe_cli import CliExecution
 from logger.log import Logging
+from send_email.email import Email
 
 
 class ParserValueConvergence:
 
     def __init__(self, filePath):
         self.jsonData = GetPrintFileValue(filePath)
+        
+        self.schedulers = []
 
         self.taskTypes = {
             "createFile": CreateOrWriteFileClass,
             "shell": CliExecution,
             "schedule": Scheduler,
-            "log": Logging
+            "log": Logging,
+            "email": Email
         }
 
    
@@ -80,11 +84,25 @@ class ParserValueConvergence:
         for task in tasks:
 
             scheduler = self.taskTypes["schedule"]
+            
+            if(task["schedule"]["type"] == "interval"):
 
-            scheduler(
+                s = scheduler(
                 task["schedule"]["seconds"],
                 lambda t=task: self.RunningCreateFile(t)
-            ).start()
+                )
+                s.start()
+                self.schedulers.append(s)
+            elif(task["schedule"]["type"] == "timeout"):
+                s = scheduler(
+                task["schedule"]["seconds"],
+                lambda t=task: self.RunningCreateFile(t)
+                )
+                s.set_timeout()
+                self.schedulers.append(s)
+                
+
+            
 
     
     def RunShell(self):
@@ -94,33 +112,121 @@ class ParserValueConvergence:
         for task in tasks:
 
             scheduler = self.taskTypes["schedule"]
-
-            scheduler(
+            
+            if(task["schedule"]["type"] == "interval"):
+                
+                s = scheduler(
                 task["schedule"]["seconds"],
                 lambda t=task: self.RunningShell(t)
-            ).start()
+                )
+                s.start()
+                self.schedulers.append(s)
+                
+            elif(task["schedule"]["type"] == "timeout"):
+                s = scheduler(
+                    task["schedule"]["seconds"],
+                    lambda t=task: self.RunningShell(t)
+                )
+                s.set_timeout()
+                self.schedulers.append(s)
+                
 
     
     def RunningLog(self, task):
 
         logger = Logging(task["task_name"], task["task_type"])
 
-        message = task["log"]["messages"]["start"]
+        message = task["log"]["messages"]
+        for key ,values in message.items():
+            print(f"message have beed added:  {key} : {values}")
 
-        logger.AddingLogs(message)
+            logger.AddingLogs(f"{message[key]}")
 
     def RunLog(self):
 
         tasks = self.TaskGiver("log")
-
+        
+        print(tasks)
+        
         for task in tasks:
 
             scheduler = self.taskTypes["schedule"]
-
-            scheduler(
+            if(task["schedule"]["type"] == "interval"):
+                s = scheduler(
                 task["schedule"]["seconds"],
                 lambda t=task: self.RunningLog(t)
-            ).start()
+                )
+
+                s.start()
+                self.schedulers.append(s)
+            elif(task["schedule"]["type"] == "timeout"):
+                    s= scheduler(
+                    task["schedule"]["seconds"],
+                    lambda t=task: self.RunningLog(t)
+                    )
+                    s.set_timeout()
+                    self.schedulers.append(s)
+                    
+    def EmailSender(self, task):
+
+        logger = Logging(task["task_name"], task["task_type"])
+        logger.AddingLogs("Task started")
+
+        try:
+            run_class = self.taskTypes["email"]
+
+            obj = run_class(
+                task["task_name"],
+                task["task_type"],
+                task["email"]["to"],        # FIX
+                task["email"]["subject"],   # FIX
+                task["email"]["body"]       # FIX
+            )
+
+            obj.send_email()
+
+            logger.AddingLogs("Email sent successfully")
+
+        except Exception as e:
+            print(f"The email issue : {str(e)}")
+            logger.AddingLogs(f"Error: {str(e)}")
+                    
+    def RunEmail(self):
+        tasks = self.TaskGiver("email");
+        
+        for task in tasks:
+            scheduler = self.taskTypes["schedule"]
+            if(task["schedule"]["type"] == "interval"):
+                s = scheduler(
+                task["schedule"]["seconds"],
+                lambda t=task: self.EmailSender(t)
+                )
+
+                s.start()
+                self.schedulers.append(s)
+            elif(task["schedule"]["type"] == "timeout"):
+                    s=scheduler(
+                    task["schedule"]["seconds"],
+                    lambda t=task: self.EmailSender(t)
+                    )
+                    s.set_timeout()
+                    self.schedulers.append(s)
+                    
+    def StopAll(self):
+
+            print("Stopping all schedulers...")
+
+            for scheduler in self.schedulers:
+                scheduler.stop()
+
+            self.schedulers.clear()
+
+            print("All schedulers stopped.")
+                    
+    def __del__(self):
+        self.StopAll()
+        print("Parser destroyed")
+        
 
 
 
@@ -131,6 +237,7 @@ def main():
     p.RunShell()
     p.CreateFile()
     p.RunLog()
+    p.RunEmail()
 
     import time
     while True:
@@ -139,3 +246,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
+    # py -m configParser.config_parser

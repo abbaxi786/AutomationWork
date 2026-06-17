@@ -1,60 +1,60 @@
 {
   "settings": {
-    "log_file": "logs/app.log"
+    "log_file": "logs/test_app.log"
   },
 
   "tasks": [
     {
-      "task_name": "create_report_file",
+      "task_name": "test_create_file",
       "task_type": "createFile",
       "schedule": {
         "type": "interval",
-        "seconds": 20
+        "seconds": 3
       },
       "file": {
-        "path": "output/report.txt",
-        "content": "This is an auto-generated report file."
+        "path": "output/test_report.txt",
+        "content": "This is a TEST file created by automation system."
       }
     },
 
     {
-      "task_name": "run_system_command",
+      "task_name": "test_shell_command",
       "task_type": "shell",
       "schedule": {
         "type": "interval",
-        "seconds": 15
+        "seconds": 4
       },
-      "command": "echo Task Running && dir"
+      "command": "echo Hello Automation Test"
     },
 
     {
-      "task_name": "send_welcome_email",
-      "task_type": "email",
+      "task_name": "test_logger",
+      "task_type": "log",
       "schedule": {
         "type": "interval",
-        "seconds": 30
+        "seconds": 2
       },
-      "email": {
-        "to": "admin@example.com",
-        "subject": "Automation System Update",
-        "body": "Your scheduled task has been executed successfully."
+      "log": {
+        "messages": {
+          "start": "TEST: task started",
+          "success": "TEST: task completed",
+          "error": "TEST: error occurred",
+          "stop": "TEST: task stopped"
+        }
       }
     },
 
     {
-      "task_name": "system_logger",
-      "task_type": "log",
+      "task_name": "test_email",
+      "task_type": "email",
       "schedule": {
-        "type": "interval",
-        "seconds": 5
+        "type": "timeout",
+        "seconds": 10
       },
-      "log": {
-        "messages": {
-          "start": "Task started",
-          "success": "Task completed successfully",
-          "error": "Error occurred during execution",
-          "stop": "Task stopped"
-        }
+      "email": {
+        "to": "nabeelahmad@kotenterprises.com",
+        "subject": "TEST EMAIL - Automation System",
+        "body": "This is a test email from your Python automation project."
       }
     }
   ]

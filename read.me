@@ -1,0 +1,101 @@
+# Python Automation System
+
+## Overview
+
+This is a Python-based automation framework that executes tasks dynamically from a JSON configuration file. It supports file creation, shell command execution, logging, and email automation with a scheduler system.
+
+---
+
+## Features
+
+* JSON-based task configuration
+* File creation automation
+* Shell command execution
+* Email automation (SMTP Gmail)
+* Logging system
+* Interval & timeout scheduler
+* CLI-based control system
+
+---
+
+## Installation
+
+### 1. Clone project
+
+```
+git clone https://github.com/yourusername/automation-system.git
+```
+
+### 2. Install dependencies
+
+```
+pip install -r requirements.txt
+```
+
+---
+
+## Usage
+
+Run the application:
+
+```
+python main.py
+```
+
+or
+
+```
+py -m configParser.config_parser
+```
+
+---
+
+## Commands
+
+| Command | Description             |
+| ------- | ----------------------- |
+| start   | Start automation system |
+| stop    | Stop all running tasks  |
+| restart | Restart system          |
+| exit    | Exit application        |
+
+---
+
+## Configuration Example
+
+```json
+{
+  "task_name": "example",
+  "task_type": "shell",
+  "schedule": {
+    "type": "interval",
+    "seconds": 5
+  },
+  "command": "echo Hello"
+}
+```
+
+---
+
+## Tech Stack
+
+* Python
+* threading
+* subprocess
+* smtplib
+* JSON
+
+---
+
+## Future Improvements
+
+* Async scheduler (asyncio)
+* Web dashboard
+* Database logging
+* Plugin-based architecture
+
+---
+
+## Author
+
+Developed as a Python learning + automation project.
